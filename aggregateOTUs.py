@@ -15,12 +15,15 @@
 
 from sys import argv
 from sys import exit
+import os
+import uuid
 
 # CONSTANTS
 FEAT_A = "HP"
 FEAT_B = "RC"
 UNFOUND = "NO_BUG"
 MAP = "supportingFiles/97_otu_taxonomy.txt"
+DATA_FOLDER = "data/"
 OUTPUT = "otutable.txt"
 
 def main():
@@ -118,12 +121,12 @@ def switchLevel(phylogeny):
 # {5ss_RC:{Bacteria:[2342342, Kingdom], ...}
 # Filters out Unclassified reads
 def readInPhylogeny():
-        files = argv[1:]  # Don't want this script in file list
+        files = [x for x in os.listdir(DATA_FOLDER) if \
+                               x.startswith("Classification")]
         toReturn = {}
 
         for f in files:
-                print "Reading in file:", f
-                with open(f, 'r') as filer:
+                with open(os.path.join(DATA_FOLDER, f), 'r') as filer:
                         dictio = {}
                         sampleName = None
                         for line in filer:
