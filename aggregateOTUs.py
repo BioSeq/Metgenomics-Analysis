@@ -20,8 +20,7 @@ from sys import exit
 FEAT_A = "HP"
 FEAT_B = "RC"
 UNFOUND = "NO_BUG"
-MAP = "/r/bcb/phil/RA/Fall_14/Classifications/supportingFiles/" +\
-        "97_otu_taxonomy.txt"
+MAP = "supportingFiles/97_otu_taxonomy.txt"
 OUTPUT = "otutable.txt"
 
 def main():
