@@ -6,7 +6,12 @@ import subprocess as sp
 import uuid
 
 def main():
-    print "Generating OTU Table...."
+    runId = str(uuid.uuid4())
+    print "Unique run ID is", runId
+    print "Generating OTU table...."
+    otuTable = sp.check_output(["./aggregateOTUs.py", runId]).strip()
+    print "OTU table:", otuTable, "created."
+    print
     print "Randomizing IDs...."
     print "Generating aggregate table...."
     print "Clustering data and making tree visualization...."

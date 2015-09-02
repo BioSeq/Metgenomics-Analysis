@@ -24,25 +24,35 @@ FEAT_B = "RC"
 UNFOUND = "NO_BUG"
 MAP = "supportingFiles/97_otu_taxonomy.txt"
 DATA_FOLDER = "data/"
-OUTPUT = "otutable.txt"
+OUTPUT = "output/otutable-"
 
 def main():
+        if len(argv) != 2:
+            usage()
+
         map = readInMap()
         phylogeny = readInPhylogeny()
         newPhylo = switchNotes(phylogeny, map)
         otuList = getAllOTUs(newPhylo)
-        writeOut(newPhylo, otuList)
+        output = OUTPUT + argv[1] + ".txt"
+        writeOut(newPhylo, otuList, output)
+        print output  # So that run script can know of new file location
+        exit(0)
 
+# Prints usage of script then exits non-zero
+def usage():
+    print "USAGE:", argv[0], "runId"
+    exit(1)
 
 # generates the OTU table
-def writeOut(newPhylo, otuList):
+def writeOut(newPhylo, otuList, output):
         labels = []
         dicts = []
         for samp in newPhylo.keys():  # Put things lists so order preserved
                 labels.append(samp)
                 dicts.append(newPhylo[samp])
 
-        with open(OUTPUT, 'w') as filew:
+        with open(output, 'w') as filew:
                 filew.write(prepareHeader(labels))
                 for otu in otuList:
                         filew.write(otu)
