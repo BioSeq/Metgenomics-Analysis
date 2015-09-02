@@ -24,8 +24,12 @@ def main():
     print
 
     print "Generating aggregate table...."
+    aggTable = sp.check_output(["./createAggregateTable.py", mapFile,
+                                            runId]).strip()
+    print "Aggregated OTU table:", aggTable
+    print
+
     print "Clustering data and making tree visualization...."
-    print "Cleaning up...."
     print "Done."
 
 

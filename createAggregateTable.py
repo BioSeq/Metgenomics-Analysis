@@ -4,7 +4,7 @@
 # createAggregrateTable.py
 # Author: Philip Braunstein
 # Date Created: September 2, 2014
-# Last Modified: September 2, 2014
+# Last Modified: September 2, 2015
 #
 # Takes in Classification files generated from metagenomics app on Basespace and
 # creates a table that the percentages of each microbe by sample.
@@ -20,8 +20,8 @@
 # CONSTANTS
 # Parameters
 LEVEL = "Genus"
-OUTPUT_FILE = "aggregateTable_" + LEVEL + ".txt"
-MAP = "secretMap.txt"
+OUTPUT_PREFIX = "output/aggregateTable_" + LEVEL + "-" 
+DATA_FOLDER = "data/"
 
 # Indices
 FILE_NAME_IND = 1
@@ -31,31 +31,37 @@ PERC_IND = 5
 
 from sys import argv
 from sys import exit
+import os
 
 def main():
-        if len(argv) < 2:
-                print "ERROR: At least one sample file required"
+        if len(argv) != 3:
                 usage()
         
-        files = argv[1:]  # Don't include script name in files to read
+        files = [x for x in os.listdir(DATA_FOLDER) if\
+                                x.startswith("Classification")]
 
         samples = readInAllFiles(files)
 
-        idMap = readInMap()
+        idMap = readInMap(argv[1])
 
         sampleNames = getSampleNames(files, idMap)
         
         groups = findAllGroups(samples)
 
-        writeOut(samples, sampleNames, groups)
+        output = OUTPUT_PREFIX + argv[2] + ".txt"
+
+        writeOut(samples, sampleNames, groups, output)
+
+        print output
 
         exit(0)
 
+
 # Reads in the map that has the same randomized sample names as were used to
 # generate the OTU table. Returned as a mapping from oldIds to newIds (dict)
-def readInMap():
+def readInMap(mapFile):
     toReturn = {}
-    with open(MAP, 'r') as filer:
+    with open(mapFile, 'r') as filer:
         for line in filer:
             listL = line.strip().split("\t")
             toReturn[listL[0]] = listL[1]
@@ -65,7 +71,7 @@ def readInMap():
 
 # Prints correct invocation of script and exits non-zero
 def usage():
-        print "USAGE:", argv[0], "SAMPLE_FILES"
+        print "USAGE:", argv[0], "mapFile runId"
         exit(1)
 
 
@@ -86,7 +92,7 @@ def readInAllFiles(files):
 def readIn(toRead):
         toReturn = {}
 
-        with open(toRead, 'r') as filer:
+        with open(os.path.join(DATA_FOLDER, toRead), 'r') as filer:
                for line in filer:
                         listL = line.strip().split("\t")
 
@@ -101,7 +107,7 @@ def readIn(toRead):
 def getSampleNames(files, idMap):
         toReturn = []
         for fileToRead in files:
-                with open(fileToRead, 'r') as filer:
+                with open(os.path.join(DATA_FOLDER, fileToRead), 'r') as filer:
                         filer.readline()
                         listL = filer.readline().strip().split("\t")
                         name = listL[FILE_NAME_IND]
@@ -132,8 +138,8 @@ def findAllGroups(samples):
 # Writes a new file with percentages in each group as the column for each
 # sample as the row. The samples and sampleNames are parallel lists, so that
 # they match up.
-def writeOut(samples, sampleNames, groups):
-        with open(OUTPUT_FILE, 'w') as filew:
+def writeOut(samples, sampleNames, groups, output):
+        with open(output, 'w') as filew:
                 # Make header for file
                 filew.write("SAMPLE")
                 for bug in groups:
