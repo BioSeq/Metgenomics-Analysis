@@ -24,7 +24,7 @@ FEAT_B = "RC"
 UNFOUND = "NO_BUG"
 MAP = "supportingFiles/97_otu_taxonomy.txt"
 DATA_FOLDER = "data/"
-OUTPUT = "output/otutable-"
+OUTPUT_PREFIX = "output/otutable-"
 
 def main():
         if len(argv) != 2:
@@ -34,7 +34,7 @@ def main():
         phylogeny = readInPhylogeny()
         newPhylo = switchNotes(phylogeny, map)
         otuList = getAllOTUs(newPhylo)
-        output = OUTPUT + argv[1] + ".txt"
+        output = OUTPUT_PREFIX + argv[1] + ".txt"
         writeOut(newPhylo, otuList, output)
         print output  # So that run script can know of new file location
         exit(0)
