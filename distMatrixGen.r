@@ -4,7 +4,7 @@
 # distMatrixGen.r
 # Author: Philip Braunstein
 # Date Created: September 3, 2014
-# Last Modified: September 3, 2014
+# Last Modified: September 2, 2015
 #
 # Reads in a table of class by sample and creates a distance matrix for
 # this data between the samples. This file is saved in the constant OUTPUT.
@@ -12,9 +12,14 @@
 # as a PDF file.
 #
 
+# Command Line args
+args <- commandArgs(TRUE)
+
 # CONSTANTS
-INPUT <- "aggregateTable_Species.txt"
-OUTPUT <- "classDistMatrixSpecies.txt"
+INPUT <-  args[1]
+UUID <- args[2]
+OUTPUT_1 <- paste("output/distMatrix-Genus-", UUID, ".txt", sep="")
+OUTPUT_2 <- paste("output/clustered-Genus-", UUID, ".pdf", sep="")
 
 mydata <- read.table(INPUT, header=TRUE, sep="\t")
 
@@ -30,15 +35,16 @@ row.names(euclidean) <- row.names(mydata)
 size <- dim(euclidean)[1]
 
 # Add size to the distance matrix to write out
-fileConn <- file(OUTPUT)
+fileConn <- file(OUTPUT_1)
 writeLines(c(paste(size)), fileConn)
 close(fileConn)
 
-write.table(euclidean, file=OUTPUT, append=TRUE, sep="\t", quote=F, col.names=F)
+write.table(euclidean, file=OUTPUT_1, append=TRUE, sep="\t", quote=F, col.names=F)
 
 clustered <- hclust(distObj, method="complete", members=NULL)
 
 
-pdf("Species.pdf", width=15, height=5)
-plot(clustered, main = "Cluster by Species")
+pdf(OUTPUT_2, width=15, height=5)
+plot(clustered, main = "Cluster by Genus")
+print(as.name(paste(OUTPUT_1, OUTPUT_2)))
 

@@ -13,11 +13,12 @@ def main():
     otuTable = sp.check_output(["./aggregateOTUs.py", runId]).strip()
     print "OTU table:", otuTable
     print
+
     print "Randomizing IDs...."
-    packing = sp.check_output(["./randomizeIds.py", otuTable,\
+    packing1 = sp.check_output(["./randomizeIds.py", otuTable,\
                                                 runId]).strip().split()
-    randomOtuTable = packing[0]
-    mapFile = packing[1]
+    randomOtuTable = packing1[0]
+    mapFile = packing1[1]
 
     print "Randomized OTU table:", randomOtuTable
     print "ID Mapping File:", mapFile
@@ -30,6 +31,11 @@ def main():
     print
 
     print "Clustering data and making tree visualization...."
+    packing2 = sp.check_output(["./distMatrixGen.r", aggTable, 
+                                runId]).strip().split()
+    print "Distance Matrix:", packing2[0]
+    print "Clustered Tree:", packing2[1]
+    print
     print "Done."
 
 
