@@ -3,7 +3,7 @@
 # Author: Philip Braunstein
 # Group: BioSeq
 # Date Created: October 19, 2014
-# Last Modified: October 19, 2014
+# Last Modified: September 21, 2015
 #
 # Takes in classification files from ILLUMINA sequencing run as well as
 # GreenGenes mapping file to convert all these classification files

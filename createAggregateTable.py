@@ -4,7 +4,7 @@
 # createAggregrateTable.py
 # Author: Philip Braunstein
 # Date Created: September 2, 2014
-# Last Modified: September 2, 2015
+# Last Modified: September 20, 2015
 #
 # Takes in Classification files generated from metagenomics app on Basespace and
 # creates a table that the percentages of each microbe by sample.
@@ -22,6 +22,7 @@
 LEVEL = "Genus"
 OUTPUT_PREFIX = "output/aggregateTable_" + LEVEL + "-" 
 DATA_FOLDER = "data/"
+CLASSIFICATIONS = "Classification.txt"
 
 # Indices
 FILE_NAME_IND = 1
@@ -34,27 +35,25 @@ from sys import exit
 import os
 
 def main():
-        if len(argv) != 3:
-                usage()
-        
-        files = [x for x in os.listdir(DATA_FOLDER) if\
-                                x.startswith("Classification")]
+    if len(argv) != 3:
+            usage()
+    
+    files = [x for x in os.listdir(DATA_FOLDER) if\
+                            x.startswith("Classification")]
 
-        samples = readInAllFiles(files)
+    samples = readInPhylogeny()
 
-        idMap = readInMap(argv[1])
+    idMap = readInMap(argv[1])
 
-        sampleNames = getSampleNames(files, idMap)
-        
-        groups = findAllGroups(samples)
+    groups = findAllGroups(samples)
 
-        output = OUTPUT_PREFIX + argv[2] + ".txt"
+    output = OUTPUT_PREFIX + argv[2] + ".txt"
 
-        writeOut(samples, sampleNames, groups, output)
+    writeOut(samples, groups, idMap, output)
 
-        print output
+    print output
 
-        exit(0)
+    exit(0)
 
 
 # Reads in the map that has the same randomized sample names as were used to
@@ -71,93 +70,91 @@ def readInMap(mapFile):
 
 # Prints correct invocation of script and exits non-zero
 def usage():
-        print "USAGE:", argv[0], "mapFile runId"
-        exit(1)
+    print "USAGE:", argv[0], "mapFile runId"
+    exit(1)
 
 
-# Uses helper function to read in all of the files provided on
-# the command line. Returns a list of dictionaries.
-def readInAllFiles(files):
-        samples = []
+# Returns a dictionary of dictionaries. The key of the outer dictionary
+# is the sample name (e.g. 9ss-HP). The key of each the inner dictionary is 
+# the phylogeny, and the value is a list of number of reads and level.
+# Assumes classifications file is in the data folder and called
+# Classification.txt
+# {5ss_RC:{Bacteria:[2342342, Kingdom], ...}
+# Filters out Unclassified reads
+def readInPhylogeny():
+    toReturn = {}
+    with open(os.path.join(DATA_FOLDER, CLASSIFICATIONS)) as filer:
+        for line in filer:
+            if line.startswith("SampleNumber"):  # Skip header
+                continue
+            
+            listL = line.strip().split("\t")
 
-        for fileToRead in files:
-                samples.append(readIn(fileToRead))
+            # Skip unclassified reads
+            if listL[3] == 'Unclassified':
+                continue
 
-        return samples
+            # Skip entries not of the correct level
+            if listL[LEVEL_IND] != LEVEL:
+                continue
 
+            if listL[FILE_NAME_IND] in toReturn.keys():
+                toReturn[listL[FILE_NAME_IND]][listL[GROUP_IND]] =\
+                                                            listL[PERC_IND]
+            else:
+                toReturn[listL[FILE_NAME_IND]] = \
+                                    {listL[GROUP_IND]:listL[PERC_IND]}
 
-# Reads in a sample file. Calls usage() if the file is not a valid format
-# returns a dictionary of the form {FILE_NAME:{LEVEL:PERCENTAGE}}
-# WARNING: This function does not check if the file is a valid file type.
-def readIn(toRead):
-        toReturn = {}
+    return toReturn
 
-        with open(os.path.join(DATA_FOLDER, toRead), 'r') as filer:
-               for line in filer:
-                        listL = line.strip().split("\t")
-
-                        if listL[LEVEL_IND] == LEVEL:  # Get correct level
-                                toReturn[listL[GROUP_IND]] = listL[PERC_IND]
-
-        return toReturn
-
-
-# Looks at the second line in each file to get the sample name
-# Returns the a list of these file names
-def getSampleNames(files, idMap):
-        toReturn = []
-        for fileToRead in files:
-                with open(os.path.join(DATA_FOLDER, fileToRead), 'r') as filer:
-                        filer.readline()
-                        listL = filer.readline().strip().split("\t")
-                        name = listL[FILE_NAME_IND]
-
-                        # Randomized names inserted here
-                        nameList = name.split("-")
-                        name = idMap[nameList[0]] + "-" + nameList[1]
-
-                toReturn.append(name)
-
-        return toReturn
 
 
 # Reads through all of the keys of all of the dictionaries in the list 
 # passed in. This function returns a list of all of the keys. Each key
 # is reported only once. 
 def findAllGroups(samples):
-        toReturn = []
+    toReturn = []
 
-        for samp in samples:
-                for key in samp.keys():
-                        if key not in toReturn:
-                                toReturn.append(key)
+    for samp in samples.keys():
+        for key in samples[samp].keys():
+            if key not in toReturn:
+                toReturn.append(key)
 
-        return toReturn
+    return toReturn
 
 
 # Writes a new file with percentages in each group as the column for each
 # sample as the row. The samples and sampleNames are parallel lists, so that
 # they match up.
-def writeOut(samples, sampleNames, groups, output):
-        with open(output, 'w') as filew:
-                # Make header for file
-                filew.write("SAMPLE")
-                for bug in groups:
-                        filew.write("\t" + bug)
-                filew.write("\n")
+def writeOut(samples, groups, idMap, output):
+    with open(output, 'w') as filew:
+        # Make header for file
+        filew.write("SAMPLE")
+        for bug in groups:
+            filew.write("\t" + bug)
+        filew.write("\n")
 
-                # Fill in body of table
-                for x in range(len(samples)):
-                        filew.write(sampleNames[x])
+        # File in table
+        for samp in samples.keys():
+            filew.write(mystifyName(samp, idMap))
 
-                        for bug in groups:
-                                # Bugs not seen marked 0%
-                                try:
-                                        filew.write("\t" + samples[x][bug])
-                                except KeyError:  
-                                        filew.write("\t0")
+            for bug in groups:
+                # Bugs not seen marked 0%
+                try:
+                    filew.write("\t" + samples[samp][bug])
+                except KeyError:  
+                    filew.write("\t0")
 
-                        filew.write("\n")
+            filew.write("\n")
+
+
+# Splits original name on dashes, and then looks up what the new name is from
+# idMap, then puts the former ending back on. If T is mapped to 19, then T-HP
+# gets mapped to 19-HP
+def mystifyName(origName, idMap):
+    listL = origName.split("-")
+
+    return idMap[listL[0]] + "-" + listL[1]
         
 
 if __name__ == '__main__':
