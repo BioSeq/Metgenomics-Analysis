@@ -24,6 +24,7 @@ FEAT_B = "RC"
 UNFOUND = "NO_BUG"
 MAP = "supportingFiles/97_otu_taxonomy.txt"
 DATA_FOLDER = "data/"
+CLASSIFICATIONS = "Classification.txt"
 OUTPUT_PREFIX = "output/otutable-"
 
 def main():
@@ -128,36 +129,29 @@ def switchLevel(phylogeny):
 # Returns a dictionary of dictionaries. The key of the outer dictionary
 # is the sample name (e.g. 9ss-HP). The key of each the inner dictionary is 
 # the phylogeny, and the value is a list of number of reads and level.
+# Assumes classifications file is in the data folder and called
+# Classification.txt
 # {5ss_RC:{Bacteria:[2342342, Kingdom], ...}
 # Filters out Unclassified reads
 def readInPhylogeny():
-        files = [x for x in os.listdir(DATA_FOLDER) if \
-                               x.startswith("Classification")]
-        toReturn = {}
+    toReturn = {}
+    with open(os.path.join(DATA_FOLDER, CLASSIFICATIONS)) as filer:
+        for line in filer:
+            if line.startswith("SampleNumber"):  # Skip header
+                continue
+            
+            listL = line.strip().split("\t")
 
-        for f in files:
-                with open(os.path.join(DATA_FOLDER, f), 'r') as filer:
-                        dictio = {}
-                        sampleName = None
-                        for line in filer:
-                                if line.startswith("SampleNumber"):
-                                        continue
+            # Skip unclassified reads
+            if listL[3] == 'Unclassified':
+                continue
 
-                                listL = line.strip().split("\t")
+            if listL[1] in toReturn.keys():
+                toReturn[listL[1]][listL[3]] = [listL[4], listL[2]]
+            else:
+                toReturn[listL[1]] = {listL[3]:[listL[4], listL[2]]}
 
-                                if sampleName == None:
-                                        sampleName = listL[1]
-
-                                # Don't include unclassified
-                                if listL[3] == 'Unclassified':
-                                    continue
-
-                                # Do basically everything
-                                dictio[listL[3]] = [listL[4], listL[2]]
-
-                toReturn[sampleName] = dictio  # Put it in
-
-        return toReturn
+    return toReturn
 
 
 # Reads in the GG mapping file into a dictionary such that each key
