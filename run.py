@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# run.py 
+# Author: Philip Braunstein
+# Copyright (c) 2015 BioSeq 
+#
+# This script is the wrapper that runs the entire BioSeq Metagenomics analysis
+# pipeline. Note that common UUID tagged on each of the output files associated
+# with this run.
+#
 
 from sys import argv
 from sys import exit
