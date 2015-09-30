@@ -1,15 +1,11 @@
 #!/usr/bin/env Rscript
-
 #
 # distMatrixGen.r
 # Author: Philip Braunstein
-# Date Created: September 3, 2014
-# Last Modified: September 2, 2015
+# Copyright (c) 2015 BioSeq
 #
-# Reads in a table of class by sample and creates a distance matrix for
-# this data between the samples. This file is saved in the constant OUTPUT.
-# This script also generates a tree from the distance matrix that is saved
-# as a PDF file.
+# Creates a distance matrix and clustered tree based on the microbes in each
+# sample.
 #
 
 # Command Line args

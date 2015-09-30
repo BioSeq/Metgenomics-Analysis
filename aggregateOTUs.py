@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 #
+# aggrgateOTUs.py
 # Author: Philip Braunstein
-# Group: BioSeq
-# Date Created: October 19, 2014
-# Last Modified: September 21, 2015
+# Copyright (c) 2015 BioSeq
 #
-# Takes in classification files from ILLUMINA sequencing run as well as
-# GreenGenes mapping file to convert all these classification files
-# into a single otu table that can go directly into PICRUSt.
-#
-# The two features are (in the first case HP & RC) are located in the globals
-# FEAT_A and FEAT_B.
+# Generates OTU table from the classification file that the Illumina MiSeq
+# Metagenomics workflow generates.
 #
 
 from sys import argv
@@ -19,8 +14,6 @@ import os
 import uuid
 
 # CONSTANTS
-FEAT_A = "HP"
-FEAT_B = "RC"
 UNFOUND = "NO_BUG"
 MAP = "supportingFiles/97_otu_taxonomy.txt"
 DATA_FOLDER = "data/"

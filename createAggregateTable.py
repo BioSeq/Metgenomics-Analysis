@@ -1,20 +1,12 @@
 #!/usr/bin/env python
-
 #
 # createAggregrateTable.py
 # Author: Philip Braunstein
-# Date Created: September 2, 2014
-# Last Modified: September 20, 2015
+# Copyright (c) 2015 BioSeq
 #
-# Takes in Classification files generated from metagenomics app on Basespace and
-# creates a table that the percentages of each microbe by sample.
-#
-# The level of phylogeny and output file name are both constants that can 
-# be changed.
-#
-# This script DOES NOT check that the files provided on the command line
-# are formatted correctly. Undefined behavior may result from use of this
-# script with improperly formatted files.
+# Generates aggrgate tables where each row correspondes to one sample and each
+# column corresponds to the fraction of a microbe in the given sample. This is
+# needed to create the distance matrix for the clustering in a later script.
 #
 
 # CONSTANTS

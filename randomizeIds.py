@@ -1,8 +1,13 @@
 #!/usr/bin/env python
-
+# 
+# randomizeIds.py
+# Author: Philip Braunstein
+# Copyright (c) 2015
+#
 # Randomizes the IDs in the metagenomics experiment OTU table. Assumes that
 # the first row has ID-HP and ID-RC format. Makes it so that the RC and HP from
 # the same sample have the same randomized ID.
+#
 
 from sys import argv
 from sys import exit
