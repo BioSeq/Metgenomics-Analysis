@@ -24,9 +24,9 @@ def main():
         if len(argv) != 2:
             usage()
 
-        map = readInMap()
+        phyloMap = readInMap()
         phylogeny = readInPhylogeny()
-        newPhylo = switchNotes(phylogeny, map)
+        newPhylo = switchNotes(phylogeny, phyloMap)
         otuList = getAllOTUs(newPhylo)
         output = OUTPUT_PREFIX + argv[1] + ".txt"
         writeOut(newPhylo, otuList, output)
